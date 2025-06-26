@@ -1,4 +1,23 @@
 #!/bin/bash
+#
+#  Licensed to the Apache Software Foundation (ASF) under one
+#  or more contributor license agreements.  See the NOTICE file
+#  distributed with this work for additional information
+#  regarding copyright ownership.  The ASF licenses this file
+#  to you under the Apache License, Version 2.0 (the
+#  "License"); you may not use this file except in compliance
+#  with the License.  You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing,
+#  software distributed under the License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+#  KIND, either express or implied.  See the License for the
+#  specific language governing permissions and limitations
+#  under the License.
+#
+
 # create addax docker image
 
 function get_version() {
@@ -7,7 +26,7 @@ function get_version() {
 }
 function compress_plugins() {
     version=$(get_version)
-    TMPDIR=$(ls -d -w1 target/addax-all-${version})
+    TMPDIR=$(ls -d -w1 target/addax-${version})
     [ -n "$TMPDIR" ] || exit 2
 
     (
@@ -37,21 +56,17 @@ compress_plugins
 
 # write a simple Dockerfile for build
 cat > /tmp/Dockerfile <<EOF
-FROM openjdk:8-jre-alpine
+FROM eclipse-temurin:17-jre-noble
 LABEL maintainer="wgzhao <wgzhao@gmail.com>"
 LABEL version="$version"
 LABEL description="Addax is a versatile open-source ETL tool that can seamlessly transfer data between various RDBMS and NoSQL databases, making it an ideal solution for data migration."
-COPY addax-all-${version} /opt/addax
+COPY addax-${version} /opt/addax
 WORKDIR /opt/addax
 RUN chmod +x bin/*.sh
 EOF
 
 # build it
-docker build -t quay.io/wgzhao/addax:${version}-lite -f /tmp/Dockerfile target/addax
-docker tag quay.io/wgzhao/addax:${version}-lite quay.io/wgzhao/addax:latest-lite
-docker push quay.io/wgzhao/addax:${version}-lite
-docker push quay.io/wgzhao/addax:latest-lite
-
-# push
+docker build -t quay.io/wgzhao/addax:${version} -f /tmp/Dockerfile target/addax
+docker tag quay.io/wgzhao/addax:${version} quay.io/wgzhao/addax:latest
 docker push quay.io/wgzhao/addax:${version}
 docker push quay.io/wgzhao/addax:latest

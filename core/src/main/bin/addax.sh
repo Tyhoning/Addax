@@ -35,7 +35,7 @@ CORE_JSON="${ADDAX_HOME}/conf/core.json"
 
 DEFAULT_PROPERTY_CONF="-Dfile.encoding=UTF-8 -Djava.security.egd=file:///dev/urandom -Daddax.home=${ADDAX_HOME} -Dlogback.configurationFile=${LOGBACK_FILE}"
 REMOTE_DEBUG_CONFIG="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,address=0.0.0.0:${DEBUG_PORT}"
-JAVA_OPTS="$JAVA_OPTS -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=75"
+JAVA_OPTS="$JAVA_OPTS -XX:+UseZGC -XX:MaxGCPauseMillis=200 -XX:InitiatingHeapOccupancyPercent=75"
 
 # ------------------------------ Global Variables ---------------------------------
 CUST_JVM=""
@@ -96,7 +96,7 @@ trap cleanup EXIT
 # Parse job file (local or remote)
 parse_job_file() {
     case "$JOB_FILE" in
-        http*)
+        [hH][tT][tT][pP]://* | [hH][tT][tT][pP][sS]://*)
             if ! command -v curl >/dev/null 2>&1; then
                 echo "Error: curl command not found, cannot download job file"
                 exit 1
